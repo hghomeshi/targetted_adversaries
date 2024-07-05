@@ -56,7 +56,8 @@ class AdversarialGenerator:
                         zip_ref.extractall(file_path.rsplit("/", 1)[0])
 
     def _load_dataset(self):
-        self._download_files()
+        if not os.path.exists("../data/TinyImageNet"):
+            self._download_files()
         imagenet_path = os.path.join(self.dataset_path, "TinyImageNet/")
         assert os.path.isdir(imagenet_path), f"Could not find the ImageNet dataset at expected path \"{imagenet_path}\". " + \
                                              f"Please make sure to have downloaded the ImageNet dataset here, or change the dataset_path variable."
