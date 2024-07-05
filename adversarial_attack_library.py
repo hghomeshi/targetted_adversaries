@@ -63,6 +63,8 @@ class AdversarialGenerator:
         return self.label_names.index(lab_str)
 
     def preprocess_input(self, img):
+        if img.size(2) != 224 or img.size(3) != 224:
+            img = F.interpolate(img, size=(224, 224), mode='bilinear', align_corners=False)
         return img
 
     def clip_eps(self, delta, eps):
@@ -111,13 +113,13 @@ class AdversarialGenerator:
         plt.show()
 
     def generate_targeted_adversaries(self, base_image, delta, class_idx, target, steps=200, epsilon=0.05, learning_rate=0.01):
-        base_image = base_image.to(self.device)
-        delta = delta.to(self.device).requires_grad_()
+        base_image = self.preprocess_input(base_image).to(self.device)
+        delta = self.preprocess_input(delta).to(self.device).requires_grad_()
         optimizer = optim.SGD([delta], lr=learning_rate)
 
         for step in range(steps + 1):
             optimizer.zero_grad()
-            adversary = self.preprocess_input(base_image + delta)
+            adversary = base_image + delta
             predictions = self.model(adversary.to(self.device))
             original_loss = -F.cross_entropy(predictions, torch.tensor([class_idx], device=self.device))
             target_loss = F.cross_entropy(predictions, torch.tensor([target], device=self.device))
