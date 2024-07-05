@@ -8,6 +8,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 from torchvision import transforms
+import urllib
+from urllib.error import HTTPError
+import zipfile
 
 
 class AdversarialGenerator:
@@ -31,23 +34,29 @@ class AdversarialGenerator:
     def _get_device(self):
         return torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda:0")
 
-    def _download_files(self, files):
+    def _download_files(self):
+        DATASET_PATH = "../data"
+        CHECKPOINT_PATH = "../saved_models/tutorial10"
+        pretrained_files = [(DATASET_PATH, "TinyImageNet.zip"), (CHECKPOINT_PATH, "patches.zip")]
         base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial10/"
-        for dir_name, file_name in files:
+        for dir_name, file_name in pretrained_files:
             file_path = os.path.join(dir_name, file_name)
             if not os.path.isfile(file_path):
                 file_url = base_url + file_name
                 print(f"Downloading {file_url}...")
+                if not os.path.exists("../data"):
+                    os.mkdir("../data")
                 try:
-                    urllib.request.urlretrieve(file_url, file_path)
+                    urllib.request.urlretrieve(file_url, file_path)  
                 except HTTPError as e:
-                    print("Something went wrong. Please try to download the file from the GDrive folder: \n", e)
+                    print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
                 if file_name.endswith(".zip"):
                     print("Unzipping file...")
                     with zipfile.ZipFile(file_path, 'r') as zip_ref:
                         zip_ref.extractall(file_path.rsplit("/", 1)[0])
 
     def _load_dataset(self):
+        self._download_files()
         imagenet_path = os.path.join(self.dataset_path, "TinyImageNet/")
         assert os.path.isdir(imagenet_path), f"Could not find the ImageNet dataset at expected path \"{imagenet_path}\". " + \
                                              f"Please make sure to have downloaded the ImageNet dataset here, or change the dataset_path variable."

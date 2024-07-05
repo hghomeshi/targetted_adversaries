@@ -6,7 +6,6 @@ import torch
 The following script shows how to test the AdversarialGenerator class 
 by requesting a sample image (first image of the TinyImageNet dataset)
 """
-
 # load the dataset from AdversarialGenerator class
 dataset = AdversarialGenerator().dataset
 # load the first image of the TinyImagenet dataset as our example
