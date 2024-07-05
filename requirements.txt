@@ -1,0 +1,5 @@
+torch==2.2.1
+torchvision==0.17.1
+matplotlib==3.7.5
+urllib3==1.25.11
+zipp==3.18.1
